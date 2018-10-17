@@ -1,5 +1,5 @@
-# StatisticalModelsProject
+# Arbitrary Project Name
 
-## Contributors: Karl Hickel, Kolby Ramirez, Eric Vela
+### Contributors: Karl Hickel, Kolby Ramirez, Eric Vela
 
-### Data Set: TBD
+#### Data Set: TBD
