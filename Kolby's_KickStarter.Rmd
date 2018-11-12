@@ -33,3 +33,4 @@ ggplot(data = CreditSubs, aes(x = NumberOfDependents, y = NumberOfOpenCreditLine
 
 
 geom_violin(aes(group = cut_width(year, 10)), scale = "width")
+```
