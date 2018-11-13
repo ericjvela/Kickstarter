@@ -16,13 +16,15 @@
 
 ```{r}
 KickStar <- read.csv("/Users/karlhickel/Desktop/ks-projects-201612.csv")
+
 KickStar$goal <- as.numeric(KickStar$goal)
 KickStar$pledged <- as.numeric(KickStar$pledged)
 KickStar$state <- factor(KickStar$state, levels = c("failed", "successful", "canceled", "live", "undefined", "suspended"))
 KickStar$currency <- factor(KickStar$currency, levels = c("USD", "GBP", "CAD", "EUR", "AUD", "SEK"))
+KickStar$country <- factor(KickStar$country, levels = c("US", "GB", "CA", "AU", "DE", "IE", "IT","NZ","NL","SG", "SE", "NO","MX", "FR", "BE", "ES"))
 KickStar$usd.pledged <- as.numeric(KickStar$usd.pledged)
-KickStar$currency <- as.factor(KickStar$currency)
 KickStar<- KickStar[!is.na(KickStar$currency),]
+KickStar<- KickStar[!is.na(KickStar$country),]
 colSums(is.na(KickStar))
 sum(is.na(KickStar$currency))
 sum(is.na(KickStar$state))
@@ -38,8 +40,11 @@ colSums(is.na(KickStar))
 sum(is.na(KickStar$currency))
 sum(is.na(KickStar$state))
 
-ggplot(data = KickStar, aes(x = currency, y = usd.pledged)) + geom_bar(stat = "identity")
+ggplot(data = KickStar, aes(x = currency, y = usd.pledged)) + geom_bar(stat = "identity") + labs(x = "Type of Currency", y = "Amount of $ Pledged") + labs(title = "Amount Pledged by Currency")
+
 View(KickStar)
+
+ggplot(data = KickStar, aes(category)) + geom_bar() + geom_point() + theme(axis.text.x  = element_text(angle=-90, hjust=0.5, size=11,colour="black")) 
 
 
 geom_violin(aes(group = cut_width(year, 10)), scale = "width")
