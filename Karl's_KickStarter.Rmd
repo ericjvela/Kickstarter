@@ -15,7 +15,7 @@
 13) usd pledged = amount of money pledged
 
 ```{r}
-KickStar <- read.csv("/Users/karlhickel/Desktop/ks-projects-201612.csv")
+KickStar <- read.csv("C:/Users/ericv/OneDrive/Documents/MGSC310/ks-projects-201612.csv")
 
 KickStar$goal <- as.numeric(KickStar$goal)
 KickStar$pledged <- as.numeric(KickStar$pledged)
@@ -30,6 +30,10 @@ sum(is.na(KickStar$currency))
 sum(is.na(KickStar$state))
 summary(KickStar)
 
+
+```
+
+```{r}
 #install.packages("ggplot2")
 library(ggplot2)
 
@@ -42,12 +46,14 @@ sum(is.na(KickStar$state))
 
 ggplot(data = KickStar, aes(x = currency, y = usd.pledged)) + geom_bar(stat = "identity") + labs(x = "Type of Currency", y = "Amount of $ Pledged") + labs(title = "Amount Pledged by Currency")
 
-View(KickStar)
 
-ggplot(data = KickStar, aes(category)) + geom_bar() + geom_point() + theme(axis.text.x  = element_text(angle=-90, hjust=0.5, size=11,colour="black")) 
+ggplot(data = KickStar, aes(category)) + geom_bar() + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Count of Categories", x = "Categories", y = "Count")
+
+ggplot(data = KickStar, aes(state)) + geom_bar() + labs(title = "Counts per State")
 
 
-geom_violin(aes(group = cut_width(year, 10)), scale = "width")
+ggplot(data = Kickstart, aes(group = cut_width(year, 10)), scale = "width") + geom_violin()
+
 ```
 
 
