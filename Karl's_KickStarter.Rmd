@@ -93,7 +93,39 @@ ggplot(data = KickStar, aes(category)) + geom_bar() + theme(axis.text.x = elemen
 ggplot(data = KickStar, aes(state)) + geom_bar() + labs(title = "Counts per State")
 ```
 
+```{r}
+#beginning of Lasso, Ridge, ElasticNet
+#install.packages("useful")
+library(useful)
 
+myFormula <- as.formula(binomState ~ category + main_category + currency + goal + pledged + backers + country + usd.pledged)
+
+library(glmnet)
+
+Xvar <- build.x(myFormula, KickTrain) 
+Yvar <- build.y(myFormula, KickTrain)
+
+
+LassoMod <- cv.glmnet(x = Xvar, y = Yvar, alpha = 1, nfolds = 10)
+plot(LassoMod)
+```
+
+
+```{r}
+#Logistic Regression
+KickStar$binomState <- ifelse(KickStar$state == "failed",0,1)
+set.seed(1861)
+trainSize <- 0.75
+trainInd <- sample(1:nrow(KickStar), size = floor(nrow(KickStar) * trainSize))
+KickTrain <- KickStar[trainInd, ]
+KickTest <- KickStar[-trainInd, ]
+logitFit <- glm(binomState ~ goal + pledged + backers + usd.pledged + main_category + currency + country, data = KickTrain, family = binomial)
+summary(logitFit)
+
+exp(logitFit$coefficients)
+
+plot(logitFit)
+```
 
 
 
