@@ -1,5 +1,6 @@
+#Kickstarter Data
 
-##Columns Explaination
+##Columns Explanation
 1) ID = internal kickstarter id
 2) name = name of project - A project is a finite work with a clear goal that you’d like to bring to life. Think albums, books, or films.
 3) category = category
@@ -16,7 +17,7 @@
 
 ```{r}
 #reads in data into KickStar
-KickStar <- read.csv("/Users/Cheddar3/Desktop/MGSC310/Group Projects/kickstarter-projects/ks-projects-201612.csv")
+KickStar <- read.csv("C:/Users/ericv/OneDrive/Documents/MGSC310/ks-projects-201612.csv")
 
 #removing a few columns with null values
 KickStar <- subset(KickStar, select = -c(14,15,16,17))
@@ -93,6 +94,49 @@ ggplot(data = KickStar, aes(category)) + geom_bar() + theme(axis.text.x = elemen
 ggplot(data = KickStar, aes(state)) + geom_bar() + labs(title = "Counts per State")
 ```
 
+
+
+#Logistic Regression Model
+
+
+```{r}
+#if failed, then 1, else 0
+KickStar$binomState <- ifelse(KickStar$state == "failed",1,0)
+set.seed(1861)
+trainSize <- 0.75
+trainInd <- sample(1:nrow(KickStar), size = floor(nrow(KickStar) * trainSize))
+KickTrain <- KickStar[trainInd, ]
+KickTest <- KickStar[-trainInd, ]
+```
+
+```{r}
+table(KickStar$main_category)
+```
+
+
+##Find summary statistics when the Kickstarter failed (1) or did not fail (0)
+```{r}
+library(doBy)
+summaryBy(goal + pledged + backers + usd.pledged + main_category + currency + country ~ binomState, data = KickTrain, fun = c(mean,sd))
+```
+It appears that Kickstarters that had less funding, less pledges, less currency, and less backers failed.
+
+##Creating a glm model and summarizing the data
+```{r}
+glmmod <- glm(binomState ~ goal + pledged + backers + usd.pledged + main_category + currency + country, data = KickTrain, family = binomial)
+```
+
+logitFit <- glm(binomState ~ goal + pledged + backers + usd.pledged + main_category + currency + country, data = KickTrain, family = binomial)
+summary(logitFit)
+
+exp(logitFit$coefficients)
+
+plot(logitFit)
+
+
+
+#Lasso, Ridge, Elastic Net Models
+
 ```{r}
 #beginning of Lasso, Ridge, ElasticNet
 #install.packages("useful")
@@ -110,22 +154,6 @@ LassoMod <- cv.glmnet(x = Xvar, y = Yvar, alpha = 1, nfolds = 10)
 plot(LassoMod)
 ```
 
-
-```{r}
-#Logistic Regression
-KickStar$binomState <- ifelse(KickStar$state == "failed",0,1)
-set.seed(1861)
-trainSize <- 0.75
-trainInd <- sample(1:nrow(KickStar), size = floor(nrow(KickStar) * trainSize))
-KickTrain <- KickStar[trainInd, ]
-KickTest <- KickStar[-trainInd, ]
-logitFit <- glm(binomState ~ goal + pledged + backers + usd.pledged + main_category + currency + country, data = KickTrain, family = binomial)
-summary(logitFit)
-
-exp(logitFit$coefficients)
-
-plot(logitFit)
-```
 
 
 
