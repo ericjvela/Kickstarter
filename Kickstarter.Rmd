@@ -124,6 +124,7 @@ summaryBy(goal + pledged + backers + usd.pledged + main_category + currency + co
 ```
 It appears that Kickstarters that had less funding, less pledges, less currency, and less backers failed.
 
+
 ###Creating a glm model on the training data and summary
 ```{r}
 glmmodTrain <- glm(binomState ~ goal + pledged + backers + usd.pledged + main_category + currency + country, data = KickTrain, family = binomial)
@@ -170,6 +171,74 @@ print(FNtrain)
 
 ```
 
+##Using the TESTING data to create a model
+
+
+###Find summary statistics when the Kickstarter failed (1) or did not fail (0)
+```{r}
+library(doBy)
+summaryBy(goal + pledged + backers + usd.pledged + main_category + currency + country ~ binomState, data = KickTest, fun = c(mean,sd))
+```
+It appears that Kickstarters that had less funding, less pledges, less currency, and less backers failed.
+
+
+###Creating a glm model on the training data and summary
+```{r}
+glmmodTest <- glm(binomState ~ goal + pledged + backers + usd.pledged + main_category + currency + country, data = KickTest, family = binomial)
+summary(glmmodTest)
+
+```
+
+###Find odds ratios
+```{r}
+exp(glmmodTest$coefficients)
+```
+
+
+###Plotting the model
+```{r}
+plot(glmmodTest)
+```
+
+###Creating probabilty of failure (1) or not (0)
+```{r}
+glmTestProbs <- predict.glm(glmmodTest, type = "response")
+hist(glmTestProbs)
+```
+
+```{r}
+glmTestPreds <- rep("Not Fail", nrow(KickTest))
+glmTestPreds[glmTestProbs > 0.5] <- "Fail"
+conftabTest <- table(glmTestPreds, true = KickTest$binomState)
+print(conftabTest)
+```
+
+```{r}
+TPtest <- conftab[2, 2]/(conftab[1, 2] + conftab[2, 2])
+TNtest <- conftab[1, 1]/(conftab[1, 1] + conftab[2, 1])
+FPtest <- conftab[2, 1]/(conftab[2, 1] + conftab[1, 1])
+FNtest <- conftab[1, 2]/(conftab[1, 1] + conftab[2, 1])
+
+print(TPtest)
+print(TNtest)
+print(FPtest)
+print(FNtest)
+
+```
+
+###Test vs Training MSE
+```{r}
+#Might not need to do this because "prediction from a rank-deficient fit may be misleadingprediction from a rank-deficient fit may be misleading"
+predictKickTrainLogistic <- predict(glmmodTrain, newdata = KickTrain, type = "response")
+KickTrainLogisticMSE = mean((KickTrain$binomState - predictKickTrainLogistic)^2)
+
+predictKickTestLogistic <- predict(glmmodTest, newdata = KickTest, type = "response")
+KickTestLogisticMSE = mean((KickTest$binomState - predictKickTestLogistic)^2)
+
+
+print(KickTrainLogisticMSE)
+print(KickTestLogisticMSE)
+```
 
 
 #Lasso, Ridge, Elastic Net Models
