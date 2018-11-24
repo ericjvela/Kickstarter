@@ -96,12 +96,13 @@ ggplot(data = KickStar, aes(state)) + geom_bar() + labs(title = "Counts per Stat
 
 
 
-#Logistic Regression Model
+#Logistic Regression Models
 
 
 ```{r}
 #if failed, then 1, else 0
 KickStar$binomState <- ifelse(KickStar$state == "failed",1,0)
+
 set.seed(1861)
 trainSize <- 0.75
 trainInd <- sample(1:nrow(KickStar), size = floor(nrow(KickStar) * trainSize))
@@ -113,25 +114,61 @@ KickTest <- KickStar[-trainInd, ]
 table(KickStar$main_category)
 ```
 
+##Using the training data to create a model
 
-##Find summary statistics when the Kickstarter failed (1) or did not fail (0)
+
+###Find summary statistics when the Kickstarter failed (1) or did not fail (0)
 ```{r}
 library(doBy)
 summaryBy(goal + pledged + backers + usd.pledged + main_category + currency + country ~ binomState, data = KickTrain, fun = c(mean,sd))
 ```
 It appears that Kickstarters that had less funding, less pledges, less currency, and less backers failed.
 
-##Creating a glm model and summarizing the data
+###Creating a glm model on the training data and summary
 ```{r}
-glmmod <- glm(binomState ~ goal + pledged + backers + usd.pledged + main_category + currency + country, data = KickTrain, family = binomial)
+glmmodTrain <- glm(binomState ~ goal + pledged + backers + usd.pledged + main_category + currency + country, data = KickTrain, family = binomial)
+summary(glmmodTrain)
+
 ```
 
-logitFit <- glm(binomState ~ goal + pledged + backers + usd.pledged + main_category + currency + country, data = KickTrain, family = binomial)
-summary(logitFit)
+###Find odds ratios
+```{r}
+exp(glmmodTrain$coefficients)
+```
 
-exp(logitFit$coefficients)
 
-plot(logitFit)
+###Plotting the model
+```{r}
+plot(glmmodTrain)
+```
+
+###Creating probabilty of failure (1) or not (0)
+```{r}
+glmTrainProbs <- predict.glm(glmmodTrain, type = "response")
+hist(glmTrainProbs)
+```
+
+```{r}
+table(KickStar$binomState)
+
+glmTrainPreds <- rep("Not Fail", nrow(KickTrain))
+glmTrainPreds[glmTrainProbs > 0.5] <- "Fail"
+conftab <- table(glmTrainPreds, true = KickTrain$binomState)
+print(conftab)
+```
+
+```{r}
+TPtrain <- conftab[2, 2]/(conftab[1, 2] + conftab[2, 2])
+TNtrain <- conftab[1, 1]/(conftab[1, 1] + conftab[2, 1])
+FPtrain <- conftab[2, 1]/(conftab[2, 1] + conftab[1, 1])
+FNtrain <- conftab[1, 2]/(conftab[1, 1] + conftab[2, 1])
+
+print(TPtrain)
+print(TNtrain)
+print(FPtrain)
+print(FNtrain)
+
+```
 
 
 
