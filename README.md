@@ -1,5 +1,8 @@
 # Kickstarters
 
+### Description
+Utilizing supervised learning algorithms to analyze 2016 KickStarters.
+
 ### Contributors: 
 Karl Hickel, Kolby Ramirez, Eric Vela
 
