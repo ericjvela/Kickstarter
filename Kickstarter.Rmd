@@ -74,6 +74,9 @@ KickStar$usd.pledged <- as.numeric(KickStar$usd.pledged)
 KickStar$newDeadline <- as.Date(as.POSIXlt(KickStar$deadline, origin = "1582-10-14",tz = "GMT"))
 KickStar$newLaunched <- as.Date(as.POSIXlt(KickStar$launched, origin = "1582-10-14",tz = "GMT"))
 
+#if successful, then 1, else 0
+KickStar$binomState <- ifelse(KickStar$state == "successful",1,0)
+
 #gets summary of data
 summary(KickStar)
 ```
@@ -124,14 +127,14 @@ table(KickStar$main_category)
 ###Find summary statistics when the Kickstarter succeed (1) or did not (0)
 ```{r}
 library(doBy)
-summaryBy(goal + pledged + backers + usd.pledged + main_category + currency + country ~ binomState, data = KickTrain, fun = c(mean,sd))
+summaryBy(goal + pledged + backers + currency ~ binomState, data = KickTrain, fun = c(mean,sd))
 ```
 It appears that Kickstarters that had less funding, less pledges, less currency, and less backers failed.
 
 
 ###Creating a glm model on the training data and summary
 ```{r}
-glmmodTrain <- glm(binomState ~ goal + pledged + backers + usd.pledged + main_category + currency + country, data = KickTrain, family = binomial)
+glmmodTrain <- glm(binomState ~ goal + pledged + backers + currency, data = KickTrain, family = binomial)
 summary(glmmodTrain)
 ```
 
@@ -180,14 +183,14 @@ print(FNtrain)
 ###Find summary statistics when the Kickstarter failed (1) or did not fail (0)
 ```{r}
 library(doBy)
-summaryBy(goal + pledged + backers + usd.pledged + main_category + currency + country ~ binomState, data = KickTest, fun = c(mean,sd))
+summaryBy(goal + pledged + backers + currency ~ binomState, data = KickTest, fun = c(mean,sd))
 ```
 It appears that Kickstarters that had less funding, less pledges, less currency, and less backers failed.
 
 
 ###Creating a glm model on the training data and summary
 ```{r}
-glmmodTest <- glm(binomState ~ goal + pledged + backers + usd.pledged + main_category + currency + country, data = KickTest, family = binomial)
+glmmodTest <- glm(binomState ~ goal + pledged + backers + currency, data = KickTest, family = binomial)
 summary(glmmodTest)
 ```
 
