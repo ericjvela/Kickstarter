@@ -280,6 +280,7 @@ MSE(KickTrain$binomState, predict(RidgeMod, newx = Xvar))
 MSE(KickTrain$binomState, predict(ElasticNet1, newx = Xvar))
 MSE(KickTrain$binomState, predict(ElasticNet2, newx = Xvar))
 MSE(KickTrain$binomState, predict(ElasticNet3, newx = Xvar))
+
 ```
 
 ###Tree Based Methods
