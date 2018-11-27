@@ -15,6 +15,22 @@
 12) country = country pledged from
 13) usd pledged = amount of money pledged
 
+##Packages Needed to Download
+```{r}
+#install.packages("ggplot2")
+library(ggplot2)
+
+library(doBy)
+
+#install.packages("useful")
+library(useful)
+
+library(glmnet)
+
+#install.packages('rpart')
+library(rpart)
+```
+
 ```{r}
 #reads in data into KickStar
 KickStar <- read.csv("/Users/Cheddar3/Desktop/MGSC310/Group Projects/kickstarter-projects/ks-projects-201612.csv")
@@ -74,8 +90,17 @@ KickStar$usd.pledged <- as.numeric(KickStar$usd.pledged)
 KickStar$newDeadline <- as.Date(as.POSIXlt(KickStar$deadline, origin = "1582-10-14",tz = "GMT"))
 KickStar$newLaunched <- as.Date(as.POSIXlt(KickStar$launched, origin = "1582-10-14",tz = "GMT"))
 
+#difference between launched and deadline in days
+KickStar$DateDiffDays <- KickStar$newDeadline - KickStar$newLaunched
+
 #if successful, then 1, else 0
 KickStar$binomState <- ifelse(KickStar$state == "successful",1,0)
+
+set.seed(1861)
+trainSize <- 0.75
+trainInd <- sample(1:nrow(KickStar), size = floor(nrow(KickStar) * trainSize))
+KickTrain <- KickStar[trainInd, ]
+KickTest <- KickStar[-trainInd, ]
 
 #gets summary of data
 summary(KickStar)
@@ -84,9 +109,6 @@ summary(KickStar)
 
 
 ```{r}
-#install.packages("ggplot2")
-library(ggplot2)
-
 #ggplot of Goal Amount and Pledge Amount by state of company
 ggplot(data = KickStar, aes(goal, pledged)) + geom_smooth() + facet_wrap(~state) + labs(title = "Smooth Plot of Goal vs Pledge Amount by State of Company") + labs(x = "Goal Amount", y = "Pledge Amount")
 
@@ -104,29 +126,12 @@ ggplot(data = KickStar, aes(state)) + geom_bar() + labs(title = "Counts per Stat
 ```
 
 
-
 #Logistic Regression Models
-```{r}
-#if successful, then 1, else 0
-KickStar$binomState <- ifelse(KickStar$state == "successful",1,0)
-
-set.seed(1861)
-trainSize <- 0.75
-trainInd <- sample(1:nrow(KickStar), size = floor(nrow(KickStar) * trainSize))
-KickTrain <- KickStar[trainInd, ]
-KickTest <- KickStar[-trainInd, ]
-```
-
-```{r}
-table(KickStar$main_category)
-```
 
 ##Using the training data to create a model
 
-
 ###Find summary statistics when the Kickstarter succeed (1) or did not (0)
 ```{r}
-library(doBy)
 summaryBy(goal + pledged + backers + currency ~ binomState, data = KickTrain, fun = c(mean,sd))
 ```
 It appears that Kickstarters that had less funding, less pledges, less currency, and less backers failed.
@@ -134,7 +139,7 @@ It appears that Kickstarters that had less funding, less pledges, less currency,
 
 ###Creating a glm model on the training data and summary
 ```{r}
-glmmodTrain <- glm(binomState ~ goal + pledged + backers + currency, data = KickTrain, family = binomial)
+glmmodTrain <- glm(binomState ~ goal + pledged + backers + DateDiffDays + currency, data = KickTrain, family = binomial)
 summary(glmmodTrain)
 ```
 
@@ -169,12 +174,6 @@ TPtrain <- conftab[2, 2]/(conftab[1, 2] + conftab[2, 2])
 TNtrain <- conftab[1, 1]/(conftab[1, 1] + conftab[2, 1])
 FPtrain <- conftab[2, 1]/(conftab[2, 1] + conftab[1, 1])
 FNtrain <- conftab[1, 2]/(conftab[1, 1] + conftab[2, 1])
-
-print(TPtrain)
-print(TNtrain)
-print(FPtrain)
-print(FNtrain)
-
 ```
 
 ##Using the TESTING data to create a model
@@ -182,15 +181,14 @@ print(FNtrain)
 
 ###Find summary statistics when the Kickstarter failed (1) or did not fail (0)
 ```{r}
-library(doBy)
-summaryBy(goal + pledged + backers + currency ~ binomState, data = KickTest, fun = c(mean,sd))
+summaryBy(goal + pledged + backers + currency + DateDiffDays ~ binomState, data = KickTest, fun = c(mean,sd))
 ```
 It appears that Kickstarters that had less funding, less pledges, less currency, and less backers failed.
 
 
 ###Creating a glm model on the training data and summary
 ```{r}
-glmmodTest <- glm(binomState ~ goal + pledged + backers + currency, data = KickTest, family = binomial)
+glmmodTest <- glm(binomState ~ goal + pledged + backers + DateDiffDays + currency, data = KickTest, family = binomial)
 summary(glmmodTest)
 ```
 
@@ -224,11 +222,17 @@ TNtest <- conftabTest[1, 1]/(conftabTest[1, 1] + conftabTest[2, 1])
 FPtest <- conftabTest[2, 1]/(conftabTest[2, 1] + conftabTest[1, 1])
 FNtest <- conftabTest[1, 2]/(conftabTest[1, 1] + conftabTest[2, 1])
 
+#TRAINING RESULTS 
+print(TPtrain)
+print(TNtrain)
+print(FPtrain)
+print(FNtrain)
+
+#TESTING RESULTS
 print(TPtest)
 print(TNtest)
 print(FPtest)
 print(FNtest)
-
 ```
 
 ###Test vs Training MSE
@@ -249,12 +253,7 @@ print(KickTestLogisticMSE)
 #Lasso, Ridge, Elastic Net Models
 
 ```{r}
-#install.packages("useful")
-library(useful)
-
-myFormula <- as.formula(binomState ~ main_category + currency + goal + pledged + backers + country + usd.pledged)
-
-library(glmnet)
+myFormula <- as.formula(binomState ~ main_category + currency + goal + pledged + backers + country + usd.pledged + DateDiffDays)
 
 Xvar <- build.x(myFormula, KickTrain) 
 Yvar <- build.y(myFormula, KickTrain)
@@ -271,7 +270,7 @@ plot(RidgeMod)
 ElasticNet1 <- cv.glmnet(x = Xvar, y = Yvar, alpha = .25, nfolds = 10)
 ElasticNet2 <- cv.glmnet(x = Xvar, y = Yvar, alpha = .50, nfolds = 10)
 ElasticNet3 <- cv.glmnet(x = Xvar, y = Yvar, alpha = .75, nfolds = 10)
-summary(ElasticNet1)
+plot(ElasticNet1)
 
 #MSE
 MSE <- function(true, preds) { mean((true - preds)^2) }
@@ -285,10 +284,11 @@ MSE(KickTrain$binomState, predict(ElasticNet3, newx = Xvar))
 
 ###Tree Based Methods
 ```{r}
-#Tree Based Methods
-#install.packages('rpart')
-library(rpart)
-tree <- rpart(state ~ ., data = KickTrain)
+newKickStar <- subset(KickStar, select = -c(1,2,3,4,5,6,8,10,12,14,15))
+```
+
+```{r}
+tree <- rpart(binomState ~ . -c(ID, name, category, main_category, currency, deadline, launched, state, country newDeadline, newLaunched), data = KickTrain)
 ```
 
 
