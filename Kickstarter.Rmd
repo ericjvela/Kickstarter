@@ -219,10 +219,10 @@ print(conftabTest)
 ```
 
 ```{r}
-TPtest <- conftab[2, 2]/(conftab[1, 2] + conftab[2, 2])
-TNtest <- conftab[1, 1]/(conftab[1, 1] + conftab[2, 1])
-FPtest <- conftab[2, 1]/(conftab[2, 1] + conftab[1, 1])
-FNtest <- conftab[1, 2]/(conftab[1, 1] + conftab[2, 1])
+TPtest <- conftabTest[2, 2]/(conftabTest[1, 2] + conftabTest[2, 2])
+TNtest <- conftabTest[1, 1]/(conftabTest[1, 1] + conftabTest[2, 1])
+FPtest <- conftabTest[2, 1]/(conftabTest[2, 1] + conftabTest[1, 1])
+FNtest <- conftabTest[1, 2]/(conftabTest[1, 1] + conftabTest[2, 1])
 
 print(TPtest)
 print(TNtest)
