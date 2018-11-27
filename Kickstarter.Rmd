@@ -29,6 +29,11 @@ library(glmnet)
 
 #install.packages('rpart')
 library(rpart)
+
+#install.packages("randomForest")
+library("randomForest")
+
+set.seed(1861)
 ```
 
 ```{r}
@@ -96,7 +101,6 @@ KickStar$DateDiffDays <- KickStar$newDeadline - KickStar$newLaunched
 #if successful, then 1, else 0
 KickStar$binomState <- ifelse(KickStar$state == "successful",1,0)
 
-set.seed(1861)
 trainSize <- 0.75
 trainInd <- sample(1:nrow(KickStar), size = floor(nrow(KickStar) * trainSize))
 KickTrain <- KickStar[trainInd, ]
@@ -284,16 +288,71 @@ MSE(KickTrain$binomState, predict(ElasticNet3, newx = Xvar))
 
 ###Tree Based Methods
 ```{r}
-newKickStar <- subset(KickStar, select = -c(1,2,3,4,5,6,8,10,12,14,15))
+newKickStar <- subset(KickStar, select = -c(1,2,3,4,5,6,8,12,14,15))
+trainSize <- .02
+trainInd <- sample(1:nrow(newKickStar), size = floor(nrow(newKickStar) * trainSize))
+newKickTrain <- newKickStar[trainInd, ]
+newKickTest <- newKickStar[-trainInd, ]
 ```
+
 
 ```{r}
-tree <- rpart(binomState ~ . -c(ID, name, category, main_category, currency, deadline, launched, state, country newDeadline, newLaunched), data = KickTrain)
+#README!!! make sure you click the green arrow to run this properly
+#method = class for classification problem
+tree <- rpart(state ~ .-binomState, data = newKickTrain, method = "class", control = rpart.control(minsplit=30,  cp=0.01))
+par(xpd=TRUE)
+print(tree)
+plot(tree) 
+text(tree, pretty = 0)
+```
+
+##Pruning Tree
+```{r}
+# HAVENT TOUCHED THIS YET 
+# predict using the test data
+tree.pred <- predict(tree.carseats,Carseats[-train,],type="class")
+# note with() command evaluates an R expression in an environment 
+# constructed from the data, 
+with(Carseats[-train,],table(tree.pred,High))
+
+require('ISLR')
+require('tree')
+
+# now do some cross-validating
+cv.kick = cv.tree(tree,FUN=prune.misclass)
+cv.carseats
+plot(cv.carseats)
+prune.carseats=prune.misclass(tree.carseats,best=13)
+plot(prune.carseats);text(prune.carseats,pretty=0)
+
+# now let's evaluate this pruned tree on the dataset
+tree.pred = predict(prune.carseats, Carseats[-train,],type="class")
+with(Carseats[-train,],table(tree.pred,High))
+(72+32)/150
+
 ```
 
 
 
 
 
+###WORK ON THIS LATER
+```{r}
+MSE <- function(truth, predict) {mean((truth - predict)^2)}
+predsTrain <- predict(tree, newdata = newKickTrain)
+predsValidate <- predict(tree, newdata = newKickTest)
+MSE(newKickStar$binomState, predsTrain)
+MSE(newKickStar$binomState, predsValidate)
+```
+
+###Random Forest
+
+WEBSITE USED: https://www.statmethods.net/advstats/cart.html
+
+```{r}
+randTree <- randomForest(state ~ ., data=newKickTrain, mtry=3, method = "class")
+importance(randTree)
+plot(randTree)
+```
 
 
