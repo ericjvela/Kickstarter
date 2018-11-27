@@ -16,22 +16,6 @@
 13) usd pledged = amount of money pledged
 
 ```{r}
-##Columns Explaination
-1) ID = internal kickstarter id
-2) name = name of project - A project is a finite work with a clear goal that you’d like to bring to life. Think albums, books, or films.
-3) category = category
-4) main_category = category of campaign
-5) currency = currency used to support
-6) deadline = deadline for crowdfunding
-7) goal = fundraising goal - The funding goal is the amount of money that a creator needs to complete their project.
-8) launched = launched date launched
-9) pledged = amount pledged by "crowd"
-10) state = Current condition the project is in
-11) backers = number of backers
-12) country = country pledged from
-13) usd pledged = amount of money pledged
-
-```{r}
 #reads in data into KickStar
 KickStar <- read.csv("/Users/Cheddar3/Desktop/MGSC310/Group Projects/kickstarter-projects/ks-projects-201612.csv")
 
