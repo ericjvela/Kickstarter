@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 #Kickstarter Data
 
 ##Columns Explanation
@@ -32,7 +37,7 @@ set.seed(1861)
 
 ```{r}
 #reads in data into KickStar
-KickStar <- read.csv("/Users/karlhickel/Desktop/ks-projects-201612.csv")
+KickStar <- read.csv("/Users/Cheddar3/Desktop/MGSC310/Group Projects/kickstarter-projects/ks-projects-201612.csv")
 #removing a few columns with null values
 KickStar <- subset(KickStar, select = -c(14,15,16,17))
 #colSums(is.na(KickStar))
@@ -190,15 +195,15 @@ hist(glmTestProbs)
 ```{r}
 glmTestPreds <- rep("Failed", nrow(KickTest))
 glmTestPreds[glmTestProbs > 0.5] <- "Succeed"
-conftabTest <- table(glmTestPreds, true = KickTest$binomState)
-print(conftabTest)
+conftabtest <- table(glmTestPreds, true = KickTest$binomState)
+print(conftabtest)
 ```
 
 ```{r}
-TPtest <- conftabTest[2, 2]/(conftabTest[1, 2] + conftabTest[2, 2])
-TNtest <- conftabTest[1, 1]/(conftabTest[1, 1] + conftabTest[2, 1])
-FPtest <- conftabTest[2, 1]/(conftabTest[2, 1] + conftabTest[1, 1])
-FNtest <- conftabTest[1, 2]/(conftabTest[1, 1] + conftabTest[2, 1])
+TPtest <- conftabtest[2, 2]/(conftabtest[1, 2] + conftabtest[2, 2])
+TNtest <- conftabtest[1, 1]/(conftabtest[1, 1] + conftabtest[2, 1])
+FPtest <- conftabtest[2, 1]/(conftabtest[2, 1] + conftabtest[1, 1])
+FNtest <- conftabtest[1, 2]/(conftabtest[1, 1] + conftabtest[2, 1])
 #TRAINING RESULTS 
 print(TPtrain)
 print(TNtrain)
@@ -293,7 +298,7 @@ help(rpart)
 #with(Carseats[-train,],table(tree.pred,High))
 #(72+32)/150
 
-install.packages('rpart')
+#install.packages('rpart')
 library(rpart)
 
 ```
@@ -303,11 +308,11 @@ library(rpart)
 
 ###WORK ON THIS LATER
 ```{r}
-MSE <- function(truth, predict) {mean((truth - predict)^2)}
-predsTrain <- predict(tree, newdata = newKickTrain)
-predsValidate <- predict(tree, newdata = newKickTest)
-MSE(newKickStar$binomState, predsTrain)
-MSE(newKickStar$binomState, predsValidate)
+#MSE <- function(truth, predict) {mean((truth - predict)^2)}
+#predsTrain <- predict(tree, newdata = newKickTrain)
+#predsValidate <- predict(tree, newdata = newKickTest)
+#MSE(newKickStar$binomState, predsTrain)
+#MSE(newKickStar$binomState, predsValidate)
 ```
 
 ###Random Forest
@@ -316,8 +321,15 @@ WEBSITE USED: https://www.statmethods.net/advstats/cart.html
 
 ```{r}
 randTree <- randomForest(state ~ ., data=newKickTrain, mtry=3, method = "class")
-importance(randTree)
-plot(randTree)
+#importance(randTree)
+#plot(randTree)
+
+randForPredictTrain <- predict(randTree, newdata = newKickTrain, mtry = 3)
+#randForTrainMSE = mean((newKickTrain$state - randForPredictTrain)^2)
+#randForPredictTest <- predict(randFor, newdata = newKickTest, mtry = 3)
+#randForTestMSE = mean((AutoTest$mpg - randForPredictTest)^2)
+#print(randForTrainMSE)
+#print(randForTestMSE)
 ```
 
 
