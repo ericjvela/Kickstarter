@@ -17,7 +17,10 @@
 
 ```{r}
 #reads in data into KickStar
-KickStar <- read.csv("/Users/Cheddar3/Desktop/MGSC310/Group Projects/kickstarter-projects/ks-projects-201612.csv")
+KickStar <- read.csv("/Users/ericv/Documents/Github/StatisticalModelsProject/ks-projects-201612.csv")
+
+#set seed
+set.seed(1861)
 
 #removing a few columns with null values
 KickStar <- subset(KickStar, select = -c(14,15,16,17))
@@ -81,7 +84,7 @@ KickStar$binomState <- ifelse(KickStar$state == "successful",1,0)
 summary(KickStar)
 ```
 
-
+#ggplots
 
 ```{r}
 #install.packages("ggplot2")
@@ -107,10 +110,6 @@ ggplot(data = KickStar, aes(state)) + geom_bar() + labs(title = "Counts per Stat
 
 #Logistic Regression Models
 ```{r}
-#if successful, then 1, else 0
-KickStar$binomState <- ifelse(KickStar$state == "successful",1,0)
-
-set.seed(1861)
 trainSize <- 0.75
 trainInd <- sample(1:nrow(KickStar), size = floor(nrow(KickStar) * trainSize))
 KickTrain <- KickStar[trainInd, ]
@@ -119,13 +118,12 @@ KickTest <- KickStar[-trainInd, ]
 
 ```{r}
 table(KickStar$main_category)
- ```
 
 ##Using the training data to create a model
 
 
 ###Find summary statistics when the Kickstarter succeed (1) or did not (0)
-```{r}
+
 library(doBy)
 summaryBy(goal + pledged + backers + currency ~ binomState, data = KickTrain, fun = c(mean,sd))
 ```
@@ -180,7 +178,7 @@ print(FNtrain)
 ##Using the TESTING data to create a model
 
 
-###Find summary statistics when the Kickstarter failed (1) or did not fail (0)
+###Find summary statistics when the Kickstarter succeded (1) or failed (0)
 ```{r}
 library(doBy)
 summaryBy(goal + pledged + backers + currency ~ binomState, data = KickTest, fun = c(mean,sd))
@@ -219,10 +217,10 @@ print(conftabTest)
 ```
 
 ```{r}
-TPtest <- conftab[2, 2]/(conftab[1, 2] + conftab[2, 2])
-TNtest <- conftab[1, 1]/(conftab[1, 1] + conftab[2, 1])
-FPtest <- conftab[2, 1]/(conftab[2, 1] + conftab[1, 1])
-FNtest <- conftab[1, 2]/(conftab[1, 1] + conftab[2, 1])
+TPtest <- conftabtest[2, 2]/(conftabtest[1, 2] + conftabtest[2, 2])
+TNtest <- conftabtest[1, 1]/(conftabtest[1, 1] + conftabtest[2, 1])
+FPtest <- conftabtest[2, 1]/(conftabtest[2, 1] + conftabtest[1, 1])
+FNtest <- conftabtest[1, 2]/(conftabtest[1, 1] + conftabtest[2, 1])
 
 print(TPtest)
 print(TNtest)
@@ -282,7 +280,9 @@ MSE(KickTrain$binomState, predict(ElasticNet2, newx = Xvar))
 MSE(KickTrain$binomState, predict(ElasticNet3, newx = Xvar))
 ```
 
-###Tree Based Methods
+#Tree Based Methods
+
+##Regression Tree
 ```{r}
 #Tree Based Methods
 #install.packages('rpart')
@@ -291,7 +291,20 @@ tree <- rpart(state ~ ., data = KickTrain)
 ```
 
 
+###Random Forest
+```{r}
+library(randomForest)
+randFor <- randomForest(formula = binomState ~ goal + pledged + backers + currency, data = KickTrain, mtry = 3)
 
+randForPredictTrain <- predict(randFor, newdata = KickTrain, mtry = 3)
+randForTrainMSE = mean((AutoTrain$mpg - randForPredictTrain)^2)
+
+randForPredictTest <- predict(randFor, newdata = KickTest, mtry = 3)
+randForTestMSE = mean((AutoTest$mpg - randForPredictTest)^2)
+
+print(randForTrainMSE)
+print(randForTestMSE)
+```
 
 
 
