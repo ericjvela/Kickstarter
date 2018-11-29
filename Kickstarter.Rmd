@@ -270,7 +270,7 @@ tree <- rpart(state ~ .-binomState, data = newKickTrain, method = "class", contr
 par(xpd=TRUE)
 plot(tree); text(tree, pretty = 0)
 ```
-
+##DELETE THIS ONE
 ##Pruning Tree
 ```{r}
 # HAVENT TOUCHED THIS YET 
@@ -305,7 +305,7 @@ library(rpart)
 
 
 
-
+##DELETE  THIS ONE
 ###WORK ON THIS LATER
 ```{r}
 #MSE <- function(truth, predict) {mean((truth - predict)^2)}
@@ -331,7 +331,37 @@ randForPredictTrain <- predict(randTree, newdata = newKickTrain, mtry = 3)
 #print(randForTrainMSE)
 #print(randForTestMSE)
 ```
+##USE THIS ONE
+##Pruning Tree
+```{r}
+# HAVENT TOUCHED THIS YET 
+# predict using the test data
+tree.pred <- predict(tree, newKickTrain,type="class")
+# note with() command evaluates an R expression in an environment 
+# constructed from the data, 
+with(newKickTrain,table(tree.pred,state))
+#install.packages('tree')
+require('ISLR')
+require('tree')
+# now do some cross-validating
+printcp(tree)
+pruned.tree <- prune(tree, cp = 0.03)
+plot(pruned.tree); text(pruned.tree, pretty = 0)
+help(rpart)
 
+```
+
+
+
+##USE THIS ONE.
+###WORK ON THIS LATER
+```{r}
+MSE <- function(truth, predict) {mean((truth - predict)^2)}
+predsTrain <- predict(tree, newdata = newKickTrain)
+predsValidate <- predict(tree, newdata = newKickTest)
+MSE(newKickTrain$binomState, predsTrain)
+MSE(newKickTest$binomState, predsValidate)
+```
 
 
 
