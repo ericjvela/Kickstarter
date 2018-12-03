@@ -32,12 +32,14 @@ library(glmnet)
 library(rpart)
 #install.packages("randomForest")
 library("randomForest")
+install.packages("Hmisc")
+library("Hmisc")
 set.seed(1861)
 ```
 
 ```{r}
 #reads in data into KickStar
-KickStar <- read.csv("/Users/Cheddar3/Desktop/MGSC310/Group Projects/kickstarter-projects/ks-projects-201612.csv")
+KickStar <- read.csv("C:/Users/ericv/Documents/Github/StatisticalModelsProject/ks-projects-201612.csv")
 #removing a few columns with null values
 KickStar <- subset(KickStar, select = -c(14,15,16,17))
 #colSums(is.na(KickStar))
@@ -116,9 +118,51 @@ ggplot(data = KickStar, aes(state)) + geom_bar() + labs(title = "Counts per Stat
 
 ###Find summary statistics when the Kickstarter succeed (1) or did not (0)
 ```{r}
-summaryBy(goal + pledged + backers + currency ~ binomState, data = KickTrain, fun = c(mean,sd))
+summaryBy(goal + pledged + backers + currency + DateDiffDays ~ binomState, data = KickTrain, fun = c(mean,sd))
 ```
 It appears that Kickstarters that had less funding, less pledges, less currency, and less backers failed.
+
+###create a model explaining all data and find its summary
+```{r}
+glmmodAll <- glm(binomState ~ goal + pledged + backers + DateDiffDays + currency + main_category + category, data = KickStar, family = binomial)
+summary(glmmodAll)
+```
+
+###Adding new columns for significant values
+```{r}
+KickStar$currencySEK <- ifelse(KickStar$currency == "SEK",1,0)
+KickStar$currencyGBP <- ifelse(KickStar$currency == "GBP",1,0)
+KickStar$currencyEUR <- ifelse(KickStar$currency == "EUR",1,0)
+KickStar$currencyCHF <- ifelse(KickStar$currency == "CHF",1,0)
+KickStar$currencyCAD <- ifelse(KickStar$currency == "CAD",1,0)
+KickStar$currencyAUD <- ifelse(KickStar$currency == "AUD",1,0)
+KickStar$main_categoryPhotography <- ifelse(KickStar$main_category == "Photography",1,0)
+KickStar$main_categoryGames <- ifelse(KickStar$main_category == "Games",1,0)
+KickStar$main_categoryFood <- ifelse(KickStar$main_category == "Food",1,0)
+KickStar$main_categoryFilm&Video <- ifelse(KickStar$main_category == "Film & Video",1,0)
+KickStar$main_categoryFashion <- ifelse(KickStar$main_category == "Fashion",1,0)
+KickStar$main_categoryDesign <- ifelse(KickStar$main_category == "Design",1,0)
+KickStar$main_categoryCrafts <- ifelse(KickStar$main_category == "Crafts",1,0)
+KickStar$categoryYoungAdult <- ifelse(KickStar$category == "Young Adult",1,0)
+KickStar$categoryWoodworking <- ifelse(KickStar$category == "Woodworking",1,0)
+KickStar$categoryWeb <- ifelse(KickStar$category == "Web",1,0)
+KickStar$categoryVideoGames <- ifelse(KickStar$category == "Video Games",1,0)
+KickStar$categoryVideo <- ifelse(KickStar$category == "Video",1,0)
+KickStar$categoryTypography <- ifelse(KickStar$category == "Typography",1,0)
+KickStar$categoryTelevision <- ifelse(KickStar$category == "Television",1,0)
+KickStar$categoryTechnology <- ifelse(KickStar$category == "Technology",1,0)
+KickStar$categoryTabletopGames <- ifelse(KickStar$category == "Tabletop Games",1,0)
+KickStar$categoryStationery <- ifelse(KickStar$category == "Stationery",1,0)
+KickStar$categorySoftware <- ifelse(KickStar$category == "Software",1,0)
+KickStar$categoryRestaurants <- ifelse(KickStar$category == "Restaurants",1,0)
+KickStar$categoryReady-to-wear <- ifelse(KickStar$category == "Ready-to-wear",1,0)
+KickStar$categoryRnB <- ifelse(KickStar$category == "R&B",1,0)
+KickStar$categoryPublishing <- ifelse(KickStar$category == "Publishing",1,0)
+KickStar$categoryPublicArt <- ifelse(KickStar$category == "Public Art",1,0)
+KickStar$categoryProductDesign <- ifelse(KickStar$category == "Product Design",1,0)
+
+```
+
 
 
 ###Creating a glm model on the training data and summary
@@ -126,6 +170,7 @@ It appears that Kickstarters that had less funding, less pledges, less currency,
 glmmodTrain <- glm(binomState ~ goal + pledged + backers + DateDiffDays + currency, data = KickTrain, family = binomial)
 summary(glmmodTrain)
 ```
+
 
 ###Find odds ratios
 ```{r}
