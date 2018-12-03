@@ -127,6 +127,23 @@ It appears that Kickstarters that had less funding, less pledges, less currency,
 glmmodAll <- glm(binomState ~ goal + pledged + backers + DateDiffDays + currency + main_category + category, data = KickStar, family = binomial)
 summary(glmmodAll)
 ```
+###statistically significant columns with enough entries
+```{r}
+#not many entries for currency
+KickStar$currencySEK <- ifelse(KickStar$currency == "SEK",1,0)
+KickStar$currencyGBP <- ifelse(KickStar$currency == "GBP",1,0)
+KickStar$currencyEUR <- ifelse(KickStar$currency == "EUR",1,0)
+KickStar$currencyCHF <- ifelse(KickStar$currency == "CHF",1,0)
+KickStar$currencyCAD <- ifelse(KickStar$currency == "CAD",1,0)
+KickStar$currencyAUD <- ifelse(KickStar$currency == "AUD",1,0)
+
+KickStar$categoryProductDesign <- ifelse(KickStar$category == "Product Design",1,0)
+
+KickStar$main_categoryFilmAndVideo <- ifelse(KickStar$category == "Film & Video",1,0)
+KickStar$main_categoryPublishing <- ifelse(KickStar$category == "Publishing",1,0)
+KickStar$main_categoryGames <- ifelse(KickStar$category == "Games",1,0)
+```
+
 
 ###Adding new columns for significant values
 ```{r}
@@ -139,7 +156,7 @@ KickStar$currencyAUD <- ifelse(KickStar$currency == "AUD",1,0)
 KickStar$main_categoryPhotography <- ifelse(KickStar$main_category == "Photography",1,0)
 KickStar$main_categoryGames <- ifelse(KickStar$main_category == "Games",1,0)
 KickStar$main_categoryFood <- ifelse(KickStar$main_category == "Food",1,0)
-KickStar$main_categoryFilm&Video <- ifelse(KickStar$main_category == "Film & Video",1,0)
+KickStar$main_categoryFilmAndVideo <- ifelse(KickStar$main_category == "Film & Video",1,0)
 KickStar$main_categoryFashion <- ifelse(KickStar$main_category == "Fashion",1,0)
 KickStar$main_categoryDesign <- ifelse(KickStar$main_category == "Design",1,0)
 KickStar$main_categoryCrafts <- ifelse(KickStar$main_category == "Crafts",1,0)
@@ -155,12 +172,25 @@ KickStar$categoryTabletopGames <- ifelse(KickStar$category == "Tabletop Games",1
 KickStar$categoryStationery <- ifelse(KickStar$category == "Stationery",1,0)
 KickStar$categorySoftware <- ifelse(KickStar$category == "Software",1,0)
 KickStar$categoryRestaurants <- ifelse(KickStar$category == "Restaurants",1,0)
-KickStar$categoryReady-to-wear <- ifelse(KickStar$category == "Ready-to-wear",1,0)
+KickStar$categoryReadyto-wear <- ifelse(KickStar$category == "Ready-to-wear",1,0)
 KickStar$categoryRnB <- ifelse(KickStar$category == "R&B",1,0)
 KickStar$categoryPublishing <- ifelse(KickStar$category == "Publishing",1,0)
 KickStar$categoryPublicArt <- ifelse(KickStar$category == "Public Art",1,0)
 KickStar$categoryProductDesign <- ifelse(KickStar$category == "Product Design",1,0)
-
+KickStar$categoryPrinting <- ifelse(KickStar$category == "Printing",1,0)
+KickStar$categoryPrint <- ifelse(KickStar$category == "Print",1,0)
+KickStar$categoryPottery <- ifelse(KickStar$category == "Pottery",1,0)
+KickStar$categoryPlayingCards <- ifelse(KickStar$category == "Playing Cards",1,0)
+KickStar$categoryPhotobooks <- ifelse(KickStar$category == "Photobooks",1,0)
+KickStar$categoryPhoto <- ifelse(KickStar$category == "Photo",1,0)
+KickStar$categoryPainting <- ifelse(KickStar$category == "Painting",1,0)
+KickStar$categoryNonfiction <- ifelse(KickStar$category == "Nonfiction",1,0)
+KickStar$categoryMobileGames <- ifelse(KickStar$category == "Mobile Games",1,0)
+KickStar$categoryMixedMedia <- ifelse(KickStar$category == "Mixed Media",1,0)
+KickStar$categoryLetterpress <- ifelse(KickStar$category == "Letterpress",1,0)
+KickStar$categoryKnitting <- ifelse(KickStar$category == "Knitting",1,0)
+KickStar$categoryJournalism <- ifelse(KickStar$category == "Journalism",1,0)
+#have not finished, consulting group for input
 ```
 
 
