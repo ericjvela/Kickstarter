@@ -39,9 +39,9 @@ set.seed(1861)
 
 ```{r}
 #reads in data into KickStar
-#KickStar <- read.csv("/Users/karlhickel/Desktop//ks-projects-201612.csv")
+KickStar <- read.csv("/Users/karlhickel/Desktop//ks-projects-201612.csv")
 #KickStar <- read.csv("C:/Users/ericv/Documents/Github/StatisticalModelsProject/ks-projects-201612.csv")
-KickStar <- read.csv("/Users/Cheddar3/Desktop/MGSC310/Group Projects/kickstarter-projects/ks-projects-201612.csv")
+#KickStar <- read.csv("/Users/Cheddar3/Desktop/MGSC310/Group Projects/kickstarter-projects/ks-projects-201612.csv")
 
 #removing a few columns with null values
 KickStar <- subset(KickStar, select = -c(14,15,16,17))
@@ -294,11 +294,12 @@ print(KickTestLogisticMSE)
 #Lasso, Ridge, Elastic Net Models
 
 ```{r}
-myFormula <- as.formula(binomState ~ main_category + currency + goal + pledged + backers + country + usd.pledged + DateDiffDays)
+myFormula <- as.formula(binomState ~ main_category + currency + goal + pledged + backers + country + usd.pledged + DateDiffDays + SScurrency + SSFCategories + AveragePledged)
 Xvar <- build.x(myFormula, KickTrain) 
 Yvar <- build.y(myFormula, KickTrain)
 LassoMod <- cv.glmnet(x = Xvar, y = Yvar, alpha = 1, nfolds = 10)
 plot(LassoMod)
+LassoMod
 #Ridge Mod.
 RidgeMod <- cv.glmnet(x = Xvar, y = Yvar, alpha = 0, nfolds = 10)
 plot(RidgeMod)
@@ -319,7 +320,7 @@ MSE(KickTrain$binomState, predict(ElasticNet3, newx = Xvar))
 ###Tree Based Methods
 ```{r}
 newKickStar <- subset(KickStar, select = -c(1,2,3,4,5,6,8,12,14,15))
-trainSize <- .02
+trainSize <- .05
 trainInd <- sample(1:nrow(newKickStar), size = floor(nrow(newKickStar) * trainSize))
 newKickTrain <- newKickStar[trainInd, ]
 newKickTest <- newKickStar[-trainInd, ]
@@ -366,7 +367,7 @@ require('ISLR')
 require('tree')
 # now do some cross-validating
 printcp(tree)
-pruned.tree <- prune(tree, cp = 0.03)
+pruned.tree <- prune(tree, cp = 0.028)
 par(xpd=TRUE)
 plot(pruned.tree); text(pruned.tree, pretty = 0)
 ```
