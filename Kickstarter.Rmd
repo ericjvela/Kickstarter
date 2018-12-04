@@ -91,6 +91,27 @@ KickStar$DateDiffDays <- KickStar$newDeadline - KickStar$newLaunched
 KickStar$binomState <- ifelse(KickStar$state == "successful",1,0)
 ```
 
+###statistically significant columns with enough entries
+
+```{r}
+KickStar$SSFCategories <- ifelse(KickStar$main_category == "Film & Video" 
+                                 | KickStar$main_category == "Publishing" 
+                                 | KickStar$main_category == "Games"
+                                 | KickStar$main_category == "Design"
+                                 | KickStar$main_category == "Fashion"
+                                 ,1,0)
+KickStar$SScurrency <- ifelse(KickStar$currency == "NOK" 
+                                 | KickStar$currency == "GBP" 
+                                 | KickStar$currency == "EUR"
+                                 | KickStar$currency == "CHF"
+                                 | KickStar$currency == "CAD"
+                                 | KickStar$currency == "AUD"
+                                 ,1,0)
+KickStar$AveragePledged <- KickStar$pledged / KickStar$backers
+
+
+```
+
 ```{r}
 trainSize <- 0.75
 trainInd <- sample(1:nrow(KickStar), size = floor(nrow(KickStar) * trainSize))
@@ -131,28 +152,6 @@ summaryBy(goal + pledged + backers + currency + DateDiffDays + SScurrency + SSFC
 It appears that Kickstarters that had less funding, less pledges, less currency, and less backers failed.
 Need more backers to succeed.
 Average PLedged is higher with less backer.
-
-
-###statistically significant columns with enough entries
-```{r}
-KickStar$SSFCategories <- ifelse(KickStar$main_category == "Film & Video" 
-                                 | KickStar$main_category == "Publishing" 
-                                 | KickStar$main_category == "Games"
-                                 | KickStar$main_category == "Design"
-                                 | KickStar$main_category == "Fashion"
-                                 ,1,0)
-KickStar$SScurrency <- ifelse(KickStar$currency == "NOK" 
-                                 | KickStar$currency == "GBP" 
-                                 | KickStar$currency == "EUR"
-                                 | KickStar$currency == "CHF"
-                                 | KickStar$currency == "CAD"
-                                 | KickStar$currency == "AUD"
-                                 ,1,0)
-KickStar$AveragePledged <- KickStar$pledged / KickStar$backers
-
-
-```
-
 
 
 ###Creating a glm model on the training data and summary
