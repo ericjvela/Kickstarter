@@ -125,11 +125,6 @@ summary(KickStar)
 
 ```{r}
 #ggplot of Goal Amount and Pledge Amount by state of company
-ggplot(data = KickStar, aes(backers)) + geom_density(kernel = "gaussian") + facet_wrap(~state)
-
-
-
-#ggplot of Goal Amount and Pledge Amount by state of company
 ggplot(data = KickStar, aes(goal, pledged)) + geom_smooth() + facet_wrap(~state) + labs(title = "Smooth Plot of Goal vs Pledge Amount by State of Company") + labs(x = "Goal Amount", y = "Pledge Amount") 
 #ggplot of Goal Amount and Pledge Aamount by country
 ggplot(data = KickStar, aes(goal, pledged)) + geom_smooth() + facet_wrap(~country) + labs(title = "Smooth Plot of Goal vs Pledge Amount by Country") + labs(x = "Goal Amount", y = "Pledge Amount")
@@ -137,16 +132,12 @@ ggplot(data = KickStar, aes(goal, pledged)) + geom_smooth() + facet_wrap(~countr
 ggplot(data = KickStar, aes(x = currency, y = usd.pledged)) + geom_bar(stat = "identity") + labs(x = "Type of Currency", y = "Amount of $ Pledged") + labs(title = "Amount Pledged by Currency")
 
 
-
+###Graphs to use for powerpoint
 ##ggplot of bar graph of count of each categories
-ggplot(data = KickStar, aes(main_category, fill = state)) + geom_bar(position = "dodge") + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Count of Categories by Main Categories", x = "Main Categories", y = "Total Count") 
+ggplot(data = KickStar, aes(main_category, fill = state)) + geom_bar(position = "dodge") + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Count of Categories by Main Categories", x = "Main Categories", y = "Total Count") + coord_flip()
 
 ##ggplot of bar
-ggplot(data = KickStar, aes(x = state, y = pledged, fill = state)) + geom_boxplot() + facet_wrap(~currency) +  labs(title = "Boxplots with Amount Pledges by Currecny", x = "State", y = "Total Amount Pledged") 
-
-
-#ggplot of bar graph of count by state 
-ggplot(data = KickStar, aes(state)) + geom_bar() + labs(title = "Counts per State")
+ggplot(data = KickStar, aes(x = state, y = pledged, fill = state)) + geom_boxplot() + facet_wrap(~currency) +  labs(title = "Boxplots with Amount Pledges by Currency", x = "State", y = "Total Amount Pledged") + coord_flip() + stat_summary(fun.y=mean, geom="point", shape=19, size=2)
 ```
 
 
