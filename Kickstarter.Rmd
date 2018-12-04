@@ -32,13 +32,15 @@ library(glmnet)
 library(rpart)
 #install.packages("randomForest")
 library("randomForest")
+#install.packages("PlotROC")
+library(plotROC)
 set.seed(1861)
 ```
 
 ```{r}
 #reads in data into KickStar
-KickStar <- read.csv("/Users/karlhickel/Desktop//ks-projects-201612.csv")
-#KickStar <- read.csv("C:/Users/ericv/Documents/Github/StatisticalModelsProject/ks-projects-201612.csv")
+#KickStar <- read.csv("/Users/karlhickel/Desktop//ks-projects-201612.csv")
+KickStar <- read.csv("C:/Users/ericv/Documents/Github/StatisticalModelsProject/ks-projects-201612.csv")
 #KickStar <- read.csv("/Users/Cheddar3/Desktop/MGSC310/Group Projects/kickstarter-projects/ks-projects-201612.csv")
 
 #removing a few columns with null values
@@ -90,17 +92,14 @@ KickStar$newLaunched <- as.Date(as.POSIXlt(KickStar$launched, origin = "1582-10-
 KickStar$DateDiffDays <- KickStar$newDeadline - KickStar$newLaunched
 #if successful, then 1, else 0
 KickStar$binomState <- ifelse(KickStar$state == "successful",1,0)
-```
-
-###statistically significant columns with enough entries
-
-```{r}
+#Added statistically significant frequency categories
 KickStar$SSFCategories <- ifelse(KickStar$main_category == "Film & Video" 
                                  | KickStar$main_category == "Publishing" 
                                  | KickStar$main_category == "Games"
                                  | KickStar$main_category == "Design"
                                  | KickStar$main_category == "Fashion"
                                  ,1,0)
+#added statistically significant currencies
 KickStar$SScurrency <- ifelse(KickStar$currency == "NOK" 
                                  | KickStar$currency == "GBP" 
                                  | KickStar$currency == "EUR"
@@ -108,9 +107,8 @@ KickStar$SScurrency <- ifelse(KickStar$currency == "NOK"
                                  | KickStar$currency == "CAD"
                                  | KickStar$currency == "AUD"
                                  ,1,0)
+#added average pledged
 KickStar$AveragePledged <- KickStar$pledged / KickStar$backers
-
-
 ```
 
 ```{r}
@@ -255,10 +253,28 @@ print(FNtest)
 
 ###ROC Curve
 ```{r}
-scoresTrain <- predict(glmmodTrain, newdata = KickTrain, type = "response")
 scoresTest <- predict(glmmodTest, newdata = KickTest, type = "response")
+scoresTrain <- predict(glmmodTrain, newdata = KickTrain, type = "response")
+scoresDF <- data.frame(scores = c(scoresTest, scoresTrain), type = c(rep("Test",
+times = length(scoresTest)), rep("Train", times = length(scoresTrain))),
+true = c(KickTest$binomState, KickTrain$binomState))
+
 ```
 
+```{r}
+scoresDF$ActualValue <- ifelse(scoresDF$true == 1, "Yes", "No")
+ggplot(data = scoresDF, aes(x = scores, fill = ActualValue)) + geom_histogram(alpha = .7) + facet_grid(type ~ .) + facet_wrap(~type, scales = "free")
+```
+
+
+```{r}
+doBy::summaryBy(scores ~ type, data = scoresDF)
+```
+
+```{r}
+ggplot(scoresDF, aes(m = scores, d = true, color = type)) + geom_roc(show.legend = TRUE,
+labelsize = 3.5, cutoffs.at = c(0.99, 0.9, 0.7, 0.5, 0.3, 0.1, 0))
+```
 
 ###Test vs Training MSE
 ```{r}
