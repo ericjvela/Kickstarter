@@ -32,15 +32,13 @@ library(glmnet)
 library(rpart)
 #install.packages("randomForest")
 library("randomForest")
-install.packages("Hmisc")
-library("Hmisc")
 set.seed(1861)
 ```
 
 ```{r}
 #reads in data into KickStar
-#KickStar <- read.csv("C:/Users/ericv/Documents/Github/StatisticalModelsProject/ks-projects-201612.csv")
-KickStar <- read.csv("/Users/Cheddar3/Desktop/MGSC310/Group Projects/kickstarter-projects/ks-projects-201612.csv")
+KickStar <- read.csv("C:/Users/ericv/Documents/Github/StatisticalModelsProject/ks-projects-201612.csv")
+#KickStar <- read.csv("/Users/Cheddar3/Desktop/MGSC310/Group Projects/kickstarter-projects/ks-projects-201612.csv")
 
 #removing a few columns with null values
 KickStar <- subset(KickStar, select = -c(14,15,16,17))
@@ -87,9 +85,13 @@ KickStar$usd.pledged <- as.numeric(KickStar$usd.pledged)
 KickStar$newDeadline <- as.Date(as.POSIXlt(KickStar$deadline, origin = "1582-10-14",tz = "GMT"))
 KickStar$newLaunched <- as.Date(as.POSIXlt(KickStar$launched, origin = "1582-10-14",tz = "GMT"))
 #difference between launched and deadline in days
+#launch kickstarter before meeting the deadline for funds
 KickStar$DateDiffDays <- KickStar$newDeadline - KickStar$newLaunched
 #if successful, then 1, else 0
 KickStar$binomState <- ifelse(KickStar$state == "successful",1,0)
+```
+
+```{r}
 trainSize <- 0.75
 trainInd <- sample(1:nrow(KickStar), size = floor(nrow(KickStar) * trainSize))
 KickTrain <- KickStar[trainInd, ]
@@ -97,6 +99,7 @@ KickTest <- KickStar[-trainInd, ]
 #gets summary of data
 summary(KickStar)
 ```
+
 
 
 
@@ -123,86 +126,39 @@ ggplot(data = KickStar, aes(state)) + geom_bar() + labs(title = "Counts per Stat
 
 ###Find summary statistics when the Kickstarter succeed (1) or did not (0)
 ```{r}
-summaryBy(goal + pledged + backers + currency + DateDiffDays ~ binomState, data = KickTrain, fun = c(mean,sd))
+summaryBy(goal + pledged + backers + currency + DateDiffDays + SScurrency + SSFCategories + AveragePledged ~ binomState, data = KickTrain, fun = c(mean,sd))
 ```
 It appears that Kickstarters that had less funding, less pledges, less currency, and less backers failed.
+Need more backers to succeed.
+Average PLedged is higher with less backer.
 
-###create a model explaining all data and find its summary
-```{r}
-glmmodAll <- glm(binomState ~ goal + pledged + backers + DateDiffDays + currency + main_category + category, data = KickStar, family = binomial)
-summary(glmmodAll)
-```
+
 ###statistically significant columns with enough entries
 ```{r}
-#not many entries for currency
-KickStar$currencySEK <- ifelse(KickStar$currency == "SEK",1,0)
-KickStar$currencyGBP <- ifelse(KickStar$currency == "GBP",1,0)
-KickStar$currencyEUR <- ifelse(KickStar$currency == "EUR",1,0)
-KickStar$currencyCHF <- ifelse(KickStar$currency == "CHF",1,0)
-KickStar$currencyCAD <- ifelse(KickStar$currency == "CAD",1,0)
-KickStar$currencyAUD <- ifelse(KickStar$currency == "AUD",1,0)
+KickStar$SSFCategories <- ifelse(KickStar$main_category == "Film & Video" 
+                                 | KickStar$main_category == "Publishing" 
+                                 | KickStar$main_category == "Games"
+                                 | KickStar$main_category == "Design"
+                                 | KickStar$main_category == "Fashion"
+                                 ,1,0)
+KickStar$SScurrency <- ifelse(KickStar$currency == "NOK" 
+                                 | KickStar$currency == "GBP" 
+                                 | KickStar$currency == "EUR"
+                                 | KickStar$currency == "CHF"
+                                 | KickStar$currency == "CAD"
+                                 | KickStar$currency == "AUD"
+                                 ,1,0)
+KickStar$AveragePledged <- KickStar$pledged / KickStar$backers
 
-KickStar$categoryProductDesign <- ifelse(KickStar$category == "Product Design",1,0)
 
-KickStar$main_categoryFilmAndVideo <- ifelse(KickStar$main_category == "Film & Video",1,0)
-KickStar$main_categoryPublishing <- ifelse(KickStar$main_category == "Publishing",1,0)
-KickStar$main_categoryGames <- ifelse(KickStar$main_category == "Games",1,0)
-```
-
-
-###Adding new columns for significant values
-```{r}
-KickStar$currencySEK <- ifelse(KickStar$currency == "SEK",1,0)
-KickStar$currencyGBP <- ifelse(KickStar$currency == "GBP",1,0)
-KickStar$currencyEUR <- ifelse(KickStar$currency == "EUR",1,0)
-KickStar$currencyCHF <- ifelse(KickStar$currency == "CHF",1,0)
-KickStar$currencyCAD <- ifelse(KickStar$currency == "CAD",1,0)
-KickStar$currencyAUD <- ifelse(KickStar$currency == "AUD",1,0)
-KickStar$main_categoryPhotography <- ifelse(KickStar$main_category == "Photography",1,0)
-KickStar$main_categoryGames <- ifelse(KickStar$main_category == "Games",1,0)
-KickStar$main_categoryFood <- ifelse(KickStar$main_category == "Food",1,0)
-KickStar$main_categoryFilmAndVideo <- ifelse(KickStar$main_category == "Film & Video",1,0)
-KickStar$main_categoryFashion <- ifelse(KickStar$main_category == "Fashion",1,0)
-KickStar$main_categoryDesign <- ifelse(KickStar$main_category == "Design",1,0)
-KickStar$main_categoryCrafts <- ifelse(KickStar$main_category == "Crafts",1,0)
-KickStar$categoryYoungAdult <- ifelse(KickStar$category == "Young Adult",1,0)
-KickStar$categoryWoodworking <- ifelse(KickStar$category == "Woodworking",1,0)
-KickStar$categoryWeb <- ifelse(KickStar$category == "Web",1,0)
-KickStar$categoryVideoGames <- ifelse(KickStar$category == "Video Games",1,0)
-KickStar$categoryVideo <- ifelse(KickStar$category == "Video",1,0)
-KickStar$categoryTypography <- ifelse(KickStar$category == "Typography",1,0)
-KickStar$categoryTelevision <- ifelse(KickStar$category == "Television",1,0)
-KickStar$categoryTechnology <- ifelse(KickStar$category == "Technology",1,0)
-KickStar$categoryTabletopGames <- ifelse(KickStar$category == "Tabletop Games",1,0)
-KickStar$categoryStationery <- ifelse(KickStar$category == "Stationery",1,0)
-KickStar$categorySoftware <- ifelse(KickStar$category == "Software",1,0)
-KickStar$categoryRestaurants <- ifelse(KickStar$category == "Restaurants",1,0)
-KickStar$categoryReadytowear <- ifelse(KickStar$category == "Ready-to-wear",1,0)
-KickStar$categoryRnB <- ifelse(KickStar$category == "R&B",1,0)
-KickStar$categoryPublishing <- ifelse(KickStar$category == "Publishing",1,0)
-KickStar$categoryPublicArt <- ifelse(KickStar$category == "Public Art",1,0)
-KickStar$categoryProductDesign <- ifelse(KickStar$category == "Product Design",1,0)
-KickStar$categoryPrinting <- ifelse(KickStar$category == "Printing",1,0)
-KickStar$categoryPrint <- ifelse(KickStar$category == "Print",1,0)
-KickStar$categoryPottery <- ifelse(KickStar$category == "Pottery",1,0)
-KickStar$categoryPlayingCards <- ifelse(KickStar$category == "Playing Cards",1,0)
-KickStar$categoryPhotobooks <- ifelse(KickStar$category == "Photobooks",1,0)
-KickStar$categoryPhoto <- ifelse(KickStar$category == "Photo",1,0)
-KickStar$categoryPainting <- ifelse(KickStar$category == "Painting",1,0)
-KickStar$categoryNonfiction <- ifelse(KickStar$category == "Nonfiction",1,0)
-KickStar$categoryMobileGames <- ifelse(KickStar$category == "Mobile Games",1,0)
-KickStar$categoryMixedMedia <- ifelse(KickStar$category == "Mixed Media",1,0)
-KickStar$categoryLetterpress <- ifelse(KickStar$category == "Letterpress",1,0)
-KickStar$categoryKnitting <- ifelse(KickStar$category == "Knitting",1,0)
-KickStar$categoryJournalism <- ifelse(KickStar$category == "Journalism",1,0)
-#have not finished, consulting group for input
 ```
 
 
 
 ###Creating a glm model on the training data and summary
 ```{r}
-glmmodTrain <- glm(binomState ~ goal + pledged + backers + DateDiffDays + currency, data = KickTrain, family = binomial)
+glmmodTrain <- glm(binomState ~ goal + pledged + backers + DateDiffDays + SScurrency + SSFCategories + AveragePledged, 
+                   data = KickTrain, family = binomial)
 summary(glmmodTrain)
 ```
 
@@ -213,16 +169,12 @@ exp(glmmodTrain$coefficients)
 ```
 
 
-###Plotting the model
-```{r}
-plot(glmmodTrain)
-```
-
 ###Creating probabilty of failure (1) or not (0)
 ```{r}
 glmTrainProbs <- predict.glm(glmmodTrain, type = "response")
 hist(glmTrainProbs)
 ```
+
 
 ```{r}
 table(KickStar$binomState)
@@ -237,6 +189,11 @@ TPtrain <- conftab[2, 2]/(conftab[1, 2] + conftab[2, 2])
 TNtrain <- conftab[1, 1]/(conftab[1, 1] + conftab[2, 1])
 FPtrain <- conftab[2, 1]/(conftab[2, 1] + conftab[1, 1])
 FNtrain <- conftab[1, 2]/(conftab[1, 1] + conftab[2, 1])
+
+TPtrain
+TNtrain
+FPtrain
+FNtrain
 ```
 
 ##Using the TESTING data to create a model
