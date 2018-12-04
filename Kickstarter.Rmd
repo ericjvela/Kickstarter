@@ -148,6 +148,8 @@ ggplot(data = KickStar, aes(x = state, y = pledged, fill = state)) + geom_boxplo
 ###Find summary statistics when the Kickstarter succeed (1) or did not (0)
 ```{r}
 summaryBy(goal + pledged + backers + currency + DateDiffDays + SScurrency + SSFCategories + AveragePledged ~ binomState, data = KickTrain, fun = c(mean,sd))
+
+summaryBy(cbind(pledged, backers, DateDiffDays) ~ cbind(binomState,main_category), data = KickTrain)
 ```
 It appears that Kickstarters that had less funding, less pledges, less currency, and less backers failed.
 Need more backers to succeed.
