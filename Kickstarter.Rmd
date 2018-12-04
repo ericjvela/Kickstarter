@@ -37,7 +37,8 @@ set.seed(1861)
 
 ```{r}
 #reads in data into KickStar
-KickStar <- read.csv("C:/Users/ericv/Documents/Github/StatisticalModelsProject/ks-projects-201612.csv")
+KickStar <- read.csv("/Users/karlhickel/Desktop//ks-projects-201612.csv")
+#KickStar <- read.csv("C:/Users/ericv/Documents/Github/StatisticalModelsProject/ks-projects-201612.csv")
 #KickStar <- read.csv("/Users/Cheddar3/Desktop/MGSC310/Group Projects/kickstarter-projects/ks-projects-201612.csv")
 
 #removing a few columns with null values
