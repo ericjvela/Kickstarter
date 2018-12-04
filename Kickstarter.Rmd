@@ -39,7 +39,9 @@ set.seed(1861)
 
 ```{r}
 #reads in data into KickStar
-KickStar <- read.csv("C:/Users/ericv/Documents/Github/StatisticalModelsProject/ks-projects-201612.csv")
+#KickStar <- read.csv("C:/Users/ericv/Documents/Github/StatisticalModelsProject/ks-projects-201612.csv")
+KickStar <- read.csv("/Users/Cheddar3/Desktop/MGSC310/Group Projects/kickstarter-projects/ks-projects-201612.csv")
+
 #removing a few columns with null values
 KickStar <- subset(KickStar, select = -c(14,15,16,17))
 #colSums(is.na(KickStar))
@@ -99,6 +101,9 @@ summary(KickStar)
 
 
 ```{r}
+ggplot(data = newKickTrain, aes(goal, pledged)) + geom_jitter(aes(colour = state))
+
+
 #ggplot of Goal Amount and Pledge Amount by state of company
 ggplot(data = KickStar, aes(goal, pledged)) + geom_smooth() + facet_wrap(~state) + labs(title = "Smooth Plot of Goal vs Pledge Amount by State of Company") + labs(x = "Goal Amount", y = "Pledge Amount")
 #ggplot of Goal Amount and Pledge Aamount by country
@@ -139,9 +144,9 @@ KickStar$currencyAUD <- ifelse(KickStar$currency == "AUD",1,0)
 
 KickStar$categoryProductDesign <- ifelse(KickStar$category == "Product Design",1,0)
 
-KickStar$main_categoryFilmAndVideo <- ifelse(KickStar$category == "Film & Video",1,0)
-KickStar$main_categoryPublishing <- ifelse(KickStar$category == "Publishing",1,0)
-KickStar$main_categoryGames <- ifelse(KickStar$category == "Games",1,0)
+KickStar$main_categoryFilmAndVideo <- ifelse(KickStar$main_category == "Film & Video",1,0)
+KickStar$main_categoryPublishing <- ifelse(KickStar$main_category == "Publishing",1,0)
+KickStar$main_categoryGames <- ifelse(KickStar$main_category == "Games",1,0)
 ```
 
 
@@ -172,7 +177,7 @@ KickStar$categoryTabletopGames <- ifelse(KickStar$category == "Tabletop Games",1
 KickStar$categoryStationery <- ifelse(KickStar$category == "Stationery",1,0)
 KickStar$categorySoftware <- ifelse(KickStar$category == "Software",1,0)
 KickStar$categoryRestaurants <- ifelse(KickStar$category == "Restaurants",1,0)
-KickStar$categoryReadyto-wear <- ifelse(KickStar$category == "Ready-to-wear",1,0)
+KickStar$categoryReadytowear <- ifelse(KickStar$category == "Ready-to-wear",1,0)
 KickStar$categoryRnB <- ifelse(KickStar$category == "R&B",1,0)
 KickStar$categoryPublishing <- ifelse(KickStar$category == "Publishing",1,0)
 KickStar$categoryPublicArt <- ifelse(KickStar$category == "Public Art",1,0)
@@ -421,9 +426,8 @@ require('tree')
 # now do some cross-validating
 printcp(tree)
 pruned.tree <- prune(tree, cp = 0.03)
+par(xpd=TRUE)
 plot(pruned.tree); text(pruned.tree, pretty = 0)
-help(rpart)
-
 ```
 
 
