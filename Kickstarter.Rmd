@@ -219,10 +219,7 @@ exp(glmmodTest$coefficients)
 ```
 
 
-###Plotting the model
-```{r}
-plot(glmmodTest)
-```
+
 
 ###Creating probabilty of failure (1) or not (0)
 ```{r}
@@ -294,12 +291,18 @@ print(KickTestLogisticMSE)
 #Lasso, Ridge, Elastic Net Models
 
 ```{r}
-myFormula <- as.formula(binomState ~ main_category + currency + goal + pledged + backers + country + usd.pledged + DateDiffDays + SScurrency + SSFCategories + AveragePledged)
+myFormula <- as.formula(binomState ~ goal + pledged + backers + country + usd.pledged + DateDiffDays + SScurrency + SSFCategories + AveragePledged)
 Xvar <- build.x(myFormula, KickTrain) 
 Yvar <- build.y(myFormula, KickTrain)
+XvarTest <- build.x(myFormula, KickTest)
+YvarTest <- build.y(myFormula, KickTest)
 LassoMod <- cv.glmnet(x = Xvar, y = Yvar, alpha = 1, nfolds = 10)
+LassoModTest <- cv.glmnet(x = XvarTest, y = YvarTest)
+
 plot(LassoMod)
+plot(LassoModTest)
 LassoMod
+LassoModTest
 #Ridge Mod.
 RidgeMod <- cv.glmnet(x = Xvar, y = Yvar, alpha = 0, nfolds = 10)
 plot(RidgeMod)
@@ -315,11 +318,16 @@ MSE(KickTrain$binomState, predict(RidgeMod, newx = Xvar))
 MSE(KickTrain$binomState, predict(ElasticNet1, newx = Xvar))
 MSE(KickTrain$binomState, predict(ElasticNet2, newx = Xvar))
 MSE(KickTrain$binomState, predict(ElasticNet3, newx = Xvar))
+
+
+#MSE TEST
+MSE(KickTest$binomState, predict(LassoModTest, newx = XvarTest))
 ```
 
 ###Tree Based Methods
 ```{r}
 newKickStar <- subset(KickStar, select = -c(1,2,3,4,5,6,8,12,14,15))
+View(newKickStar)
 trainSize <- .05
 trainInd <- sample(1:nrow(newKickStar), size = floor(nrow(newKickStar) * trainSize))
 newKickTrain <- newKickStar[trainInd, ]
