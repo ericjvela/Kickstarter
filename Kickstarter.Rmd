@@ -152,9 +152,6 @@ summaryBy(goal + pledged + backers + currency + DateDiffDays + SScurrency + SSFC
 
 summaryBy(cbind(pledged, backers, DateDiffDays) ~ cbind(binomState,main_category), data = KickTrain)
 ```
-It appears that Kickstarters that had less funding, less pledges, less currency, and less backers failed.
-Need more backers to succeed.
-Average PLedged is higher with less backer.
 
 
 ###Creating a glm model on the training data and summary
@@ -243,6 +240,7 @@ print("Training False Positives")
 print(FPtrain)
 print("Training False Negatives")
 print(FNtrain)
+print("--------")
 #TESTING RESULTS
 print("Testing True Positives")
 print(TPtest)
@@ -264,6 +262,7 @@ true = c(KickTest$binomState, KickTrain$binomState))
 
 ```
 
+###Testing and Training Scores
 ```{r}
 scoresDF$ActualValue <- ifelse(scoresDF$true == 1, "Yes", "No")
 ggplot(data = scoresDF, aes(x = scores, fill = ActualValue)) + geom_histogram(alpha = .7) + facet_grid(type ~ .) + facet_wrap(~type, scales = "free")
