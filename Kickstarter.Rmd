@@ -296,7 +296,7 @@ Xvar <- build.x(myFormula, KickTrain)
 Yvar <- build.y(myFormula, KickTrain)
 XvarTest <- build.x(myFormula, KickTest)
 YvarTest <- build.y(myFormula, KickTest)
-LassoMod <- cv.glmnet(x = Xvar, y = Yvar, alpha = 1, nfolds = 10)
+LassoMod <- cv.glmnet(x = Xvar, y = Yvar, alpha = 1, nfolds = 10, family = "binomial")
 LassoModTest <- cv.glmnet(x = XvarTest, y = YvarTest)
 
 plot(LassoMod)
@@ -304,12 +304,12 @@ plot(LassoModTest)
 LassoMod
 LassoModTest
 #Ridge Mod.
-RidgeMod <- cv.glmnet(x = Xvar, y = Yvar, alpha = 0, nfolds = 10)
+RidgeMod <- cv.glmnet(x = Xvar, y = Yvar, alpha = 0, nfolds = 10, family = "binomial")
 plot(RidgeMod)
 #Elastic Net
-ElasticNet1 <- cv.glmnet(x = Xvar, y = Yvar, alpha = .25, nfolds = 10)
-ElasticNet2 <- cv.glmnet(x = Xvar, y = Yvar, alpha = .50, nfolds = 10)
-ElasticNet3 <- cv.glmnet(x = Xvar, y = Yvar, alpha = .75, nfolds = 10)
+ElasticNet1 <- cv.glmnet(x = Xvar, y = Yvar, alpha = .25, nfolds = 10, family = "binomial")
+ElasticNet2 <- cv.glmnet(x = Xvar, y = Yvar, alpha = .50, nfolds = 10, family = "binomial")
+ElasticNet3 <- cv.glmnet(x = Xvar, y = Yvar, alpha = .75, nfolds = 10, family = "binomial")
 plot(ElasticNet1)
 #MSE
 MSE <- function(true, preds) { mean((true - preds)^2) }
